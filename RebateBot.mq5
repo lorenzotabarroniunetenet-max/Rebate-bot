@@ -15,7 +15,7 @@ input double MaxSpreadPips = 0.8;         // Maximum spread in pips
 input double StopLossPips = 8.0;          // Stop loss in pips
 input double TakeProfitPips = 12.0;       // Take profit in pips
 input int MagicNumber = 12345;            // Magic number for trades
-input string Symbol = "EURUSD";           // Trading symbol
+input string TradingSymbol = "EURUSD";     // Trading symbol
 input int RSI_Period = 14;                // RSI period for trend analysis
 input int MA_Fast = 10;                   // Fast moving average period
 input int MA_Slow = 20;                   // Slow moving average period
@@ -177,15 +177,19 @@ bool CanTrade()
    }
    
    // Avoid trading during high impact news (simplified check)
-   int hour = TimeHour(TimeCurrent());
+   datetime currentTime = TimeCurrent();
+   MqlDateTime timeStruct;
+   TimeToStruct(currentTime, timeStruct);
+   int hour = timeStruct.hour;
+   
    if(hour >= 8 && hour <= 10) // London open volatility
    {
-      if(TimeCurrent() - lastTradeTime < 15 * 60) // 15 min spacing during volatile hours
+      if(currentTime - lastTradeTime < 15 * 60) // 15 min spacing during volatile hours
          return false;
    }
    
    // Check market hours (avoid weekends)
-   if(DayOfWeek() == 0 || DayOfWeek() == 6)
+   if(timeStruct.day_of_week == 0 || timeStruct.day_of_week == 6)
    {
       return false;
    }
@@ -484,7 +488,11 @@ int GetHigherTimeframeSignal()
 bool PassesQualityFilters(int signal)
 {
    // Filter 1: Avoid trading during low liquidity hours
-   int hour = TimeHour(TimeCurrent());
+   datetime currentTime = TimeCurrent();
+   MqlDateTime timeStruct;
+   TimeToStruct(currentTime, timeStruct);
+   int hour = timeStruct.hour;
+   
    if(hour >= 22 || hour <= 2) // Avoid Asian session low liquidity
       return false;
    
