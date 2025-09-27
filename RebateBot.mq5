@@ -6,7 +6,6 @@
 #property copyright "Copyright 2024, Lorenzo Tabarroni"
 #property link      ""
 #property version   "2.00"
-#property strict
 
 input double LotSize = 0.01;              // Lot size per trade
 input int MaxTradesPerDay = 180;          // Maximum trades per day
