@@ -68,12 +68,12 @@ int OnInit()
    Print("Lot size: ", LotSize);
    
    // Initialize indicators
-   rsiHandle = iRSI(Symbol, PERIOD_M5, RSI_Period, PRICE_CLOSE);
-   maFastHandle = iMA(Symbol, PERIOD_M5, MA_Fast, 0, MODE_EMA, PRICE_CLOSE);
-   maSlowHandle = iMA(Symbol, PERIOD_M5, MA_Slow, 0, MODE_EMA, PRICE_CLOSE);
-   bbHandle = iBands(Symbol, PERIOD_M5, BB_Period, 0, BB_Deviation, PRICE_CLOSE);
-   macdHandle = iMACD(Symbol, PERIOD_M5, MACD_Fast, MACD_Slow, MACD_Signal, PRICE_CLOSE);
-   volumeHandle = iVolumes(Symbol, PERIOD_M5, VOLUME_TICK);
+   rsiHandle = iRSI(_Symbol, PERIOD_M5, RSI_Period, PRICE_CLOSE);
+   maFastHandle = iMA(_Symbol, PERIOD_M5, MA_Fast, 0, MODE_EMA, PRICE_CLOSE);
+   maSlowHandle = iMA(_Symbol, PERIOD_M5, MA_Slow, 0, MODE_EMA, PRICE_CLOSE);
+   bbHandle = iBands(_Symbol, PERIOD_M5, BB_Period, 0, BB_Deviation, PRICE_CLOSE);
+   macdHandle = iMACD(_Symbol, PERIOD_M5, MACD_Fast, MACD_Slow, MACD_Signal, PRICE_CLOSE);
+   volumeHandle = iVolumes(_Symbol, PERIOD_M5, VOLUME_TICK);
    
    if(rsiHandle == INVALID_HANDLE || maFastHandle == INVALID_HANDLE || maSlowHandle == INVALID_HANDLE ||
       bbHandle == INVALID_HANDLE || macdHandle == INVALID_HANDLE || volumeHandle == INVALID_HANDLE)
@@ -141,7 +141,7 @@ void OnTick()
       return;
    
    // Get current spread
-   double spread = (Ask - Bid) / Point;
+   double spread = (SymbolInfoDouble(_Symbol, SYMBOL_ASK) - SymbolInfoDouble(_Symbol, SYMBOL_BID)) / _Point;
    if(spread > MaxSpreadPips * 10) // Convert to points
    {
       return; // Skip if spread too high
@@ -252,7 +252,7 @@ void ExecuteAdvancedStrategy()
 int GetAdvancedTradingSignal()
 {
    int signal = 0;
-   double currentPrice = (Ask + Bid) / 2;
+   double currentPrice = (SymbolInfoDouble(_Symbol, SYMBOL_ASK) + SymbolInfoDouble(_Symbol, SYMBOL_BID)) / 2;
    
    // Strategy 1: Enhanced RSI with divergence detection
    if(rsiBuffer[0] < RSI_Oversold && rsiBuffer[1] >= RSI_Oversold)
@@ -340,8 +340,8 @@ int GetAdvancedTradingSignal()
 bool DetectBullishDivergence()
 {
    // Simple divergence: price makes lower low, RSI makes higher low
-   double currentLow = iLow(Symbol, PERIOD_M5, 0);
-   double prevLow = iLow(Symbol, PERIOD_M5, 5);
+   double currentLow = iLow(_Symbol, PERIOD_M5, 0);
+   double prevLow = iLow(_Symbol, PERIOD_M5, 5);
    
    if(currentLow < prevLow && rsiBuffer[0] > rsiBuffer[5])
       return true;
@@ -355,8 +355,8 @@ bool DetectBullishDivergence()
 bool DetectBearishDivergence()
 {
    // Simple divergence: price makes higher high, RSI makes lower high
-   double currentHigh = iHigh(Symbol, PERIOD_M5, 0);
-   double prevHigh = iHigh(Symbol, PERIOD_M5, 5);
+   double currentHigh = iHigh(_Symbol, PERIOD_M5, 0);
+   double prevHigh = iHigh(_Symbol, PERIOD_M5, 5);
    
    if(currentHigh > prevHigh && rsiBuffer[0] < rsiBuffer[5])
       return true;
@@ -387,12 +387,12 @@ void UpdateSupportResistance()
    // Find pivot highs and lows
    for(int i = 2; i < SR_LookbackPeriod - 2; i++)
    {
-      double high = iHigh(Symbol, PERIOD_M5, i);
-      double low = iLow(Symbol, PERIOD_M5, i);
+      double high = iHigh(_Symbol, PERIOD_M5, i);
+      double low = iLow(_Symbol, PERIOD_M5, i);
       
       // Check for pivot high (resistance)
-      if(high > iHigh(Symbol, PERIOD_M5, i-1) && high > iHigh(Symbol, PERIOD_M5, i-2) &&
-         high > iHigh(Symbol, PERIOD_M5, i+1) && high > iHigh(Symbol, PERIOD_M5, i+2))
+      if(high > iHigh(_Symbol, PERIOD_M5, i-1) && high > iHigh(_Symbol, PERIOD_M5, i-2) &&
+         high > iHigh(_Symbol, PERIOD_M5, i+1) && high > iHigh(_Symbol, PERIOD_M5, i+2))
       {
          if(supportResistanceCount < 5)
          {
@@ -402,8 +402,8 @@ void UpdateSupportResistance()
       }
       
       // Check for pivot low (support)
-      if(low < iLow(Symbol, PERIOD_M5, i-1) && low < iLow(Symbol, PERIOD_M5, i-2) &&
-         low < iLow(Symbol, PERIOD_M5, i+1) && low < iLow(Symbol, PERIOD_M5, i+2))
+      if(low < iLow(_Symbol, PERIOD_M5, i-1) && low < iLow(_Symbol, PERIOD_M5, i-2) &&
+         low < iLow(_Symbol, PERIOD_M5, i+1) && low < iLow(_Symbol, PERIOD_M5, i+2))
       {
          if(supportResistanceCount < 5)
          {
@@ -419,7 +419,7 @@ void UpdateSupportResistance()
 //+------------------------------------------------------------------+
 bool IsNearSupport(double price)
 {
-   double tolerance = 10 * Point; // 1 pip tolerance
+   double tolerance = 10 * _Point; // 1 pip tolerance
    
    for(int i = 0; i < supportResistanceCount; i++)
    {
@@ -434,7 +434,7 @@ bool IsNearSupport(double price)
 //+------------------------------------------------------------------+
 bool IsNearResistance(double price)
 {
-   double tolerance = 10 * Point; // 1 pip tolerance
+   double tolerance = 10 * _Point; // 1 pip tolerance
    
    for(int i = 0; i < supportResistanceCount; i++)
    {
@@ -449,16 +449,30 @@ bool IsNearResistance(double price)
 //+------------------------------------------------------------------+
 int GetHigherTimeframeSignal()
 {
-   // Get H1 trend direction
-   double h1_ma_fast = iMA(Symbol, PERIOD_H1, MA_Fast, 0, MODE_EMA, PRICE_CLOSE);
-   double h1_ma_slow = iMA(Symbol, PERIOD_H1, MA_Slow, 0, MODE_EMA, PRICE_CLOSE);
+   // Get H1 trend direction using handles
+   int h1_ma_fast_handle = iMA(_Symbol, PERIOD_H1, MA_Fast, 0, MODE_EMA, PRICE_CLOSE);
+   int h1_ma_slow_handle = iMA(_Symbol, PERIOD_H1, MA_Slow, 0, MODE_EMA, PRICE_CLOSE);
    
-   double h1_fast_current = iMA(Symbol, PERIOD_H1, MA_Fast, 0, MODE_EMA, PRICE_CLOSE);
-   double h1_slow_current = iMA(Symbol, PERIOD_H1, MA_Slow, 0, MODE_EMA, PRICE_CLOSE);
+   if(h1_ma_fast_handle == INVALID_HANDLE || h1_ma_slow_handle == INVALID_HANDLE)
+      return 0;
    
-   if(h1_fast_current > h1_slow_current)
+   double h1_fast_buffer[1];
+   double h1_slow_buffer[1];
+   
+   if(CopyBuffer(h1_ma_fast_handle, 0, 0, 1, h1_fast_buffer) < 1 ||
+      CopyBuffer(h1_ma_slow_handle, 0, 0, 1, h1_slow_buffer) < 1)
+   {
+      IndicatorRelease(h1_ma_fast_handle);
+      IndicatorRelease(h1_ma_slow_handle);
+      return 0;
+   }
+   
+   IndicatorRelease(h1_ma_fast_handle);
+   IndicatorRelease(h1_ma_slow_handle);
+   
+   if(h1_fast_buffer[0] > h1_slow_buffer[0])
       return 1; // Bullish HTF trend
-   else if(h1_fast_current < h1_slow_current)
+   else if(h1_fast_buffer[0] < h1_slow_buffer[0])
       return -1; // Bearish HTF trend
    
    return 0;
@@ -497,9 +511,9 @@ double CalculateAverageATR()
    double sum = 0;
    for(int i = 1; i <= 20; i++)
    {
-      double high = iHigh(Symbol, PERIOD_M5, i);
-      double low = iLow(Symbol, PERIOD_M5, i);
-      double prevClose = iClose(Symbol, PERIOD_M5, i + 1);
+      double high = iHigh(_Symbol, PERIOD_M5, i);
+      double low = iLow(_Symbol, PERIOD_M5, i);
+      double prevClose = iClose(_Symbol, PERIOD_M5, i + 1);
       
       double tr1 = high - low;
       double tr2 = MathAbs(high - prevClose);
@@ -516,12 +530,16 @@ double CalculateAverageATR()
 double CalculateAverageBBWidth()
 {
    double sum = 0;
+   double upperBuffer[21];
+   double lowerBuffer[21];
+   
+   if(CopyBuffer(bbHandle, 1, 0, 21, upperBuffer) < 21 ||
+      CopyBuffer(bbHandle, 2, 0, 21, lowerBuffer) < 21)
+      return (bbUpperBuffer[0] - bbLowerBuffer[0]); // Fallback to current width
+   
    for(int i = 1; i <= 20; i++)
    {
-      double upper = iBands(Symbol, PERIOD_M5, BB_Period, 0, BB_Deviation, PRICE_CLOSE);
-      double lower = iBands(Symbol, PERIOD_M5, BB_Period, 0, BB_Deviation, PRICE_CLOSE);
-      // Note: This is simplified - in real implementation you'd need to get historical BB values
-      sum += (bbUpperBuffer[0] - bbLowerBuffer[0]); // Approximation
+      sum += (upperBuffer[i] - lowerBuffer[i]);
    }
    return sum / 20;
 }
@@ -534,12 +552,12 @@ void ExecuteAdvancedTrade(ENUM_ORDER_TYPE orderType, int signalStrength)
    MqlTradeRequest request;
    MqlTradeResult result;
    
-   double price = (orderType == ORDER_TYPE_BUY) ? Ask : Bid;
+   double price = (orderType == ORDER_TYPE_BUY) ? SymbolInfoDouble(_Symbol, SYMBOL_ASK) : SymbolInfoDouble(_Symbol, SYMBOL_BID);
    double sl, tp;
    
    // Dynamic SL/TP based on volatility
    double atr = CalculateATR();
-   double dynamicSL = MathMax(StopLossPips * Point * 10, atr * 1.5);
+   double dynamicSL = MathMax(StopLossPips * _Point * 10, atr * 1.5);
    double dynamicTP = dynamicSL * 1.5; // 1.5:1 risk reward ratio
    
    if(orderType == ORDER_TYPE_BUY)
@@ -556,7 +574,7 @@ void ExecuteAdvancedTrade(ENUM_ORDER_TYPE orderType, int signalStrength)
    // Prepare trade request
    ZeroMemory(request);
    request.action = TRADE_ACTION_DEAL;
-   request.symbol = Symbol;
+   request.symbol = _Symbol;
    request.volume = LotSize;
    request.type = orderType;
    request.price = price;
@@ -566,7 +584,8 @@ void ExecuteAdvancedTrade(ENUM_ORDER_TYPE orderType, int signalStrength)
    request.comment = "ProfitableRebateBot";
    
    // Send trade
-   if(OrderSend(request, result))
+   bool orderResult = OrderSend(request, result);
+   if(orderResult)
    {
       if(result.retcode == TRADE_RETCODE_DONE)
       {
@@ -597,9 +616,9 @@ double CalculateATR()
    
    for(int i = 1; i <= period; i++)
    {
-      double high = iHigh(Symbol, PERIOD_M5, i);
-      double low = iLow(Symbol, PERIOD_M5, i);
-      double prevClose = iClose(Symbol, PERIOD_M5, i + 1);
+      double high = iHigh(_Symbol, PERIOD_M5, i);
+      double low = iLow(_Symbol, PERIOD_M5, i);
+      double prevClose = iClose(_Symbol, PERIOD_M5, i + 1);
       
       double tr1 = high - low;
       double tr2 = MathAbs(high - prevClose);
@@ -650,14 +669,14 @@ void OnTrade()
          {
             datetime openTime = (datetime)PositionGetInteger(POSITION_TIME);
             double openPrice = PositionGetDouble(POSITION_PRICE_OPEN);
-            double currentPrice = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? Bid : Ask;
+            double currentPrice = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? SymbolInfoDouble(_Symbol, SYMBOL_BID) : SymbolInfoDouble(_Symbol, SYMBOL_ASK);
             double currentSL = PositionGetDouble(POSITION_SL);
             double currentTP = PositionGetDouble(POSITION_TP);
             
             // Implement trailing stop
             if(UseTrailingStop)
             {
-               double trailDistance = TrailingStopPips * Point * 10;
+               double trailDistance = TrailingStopPips * _Point * 10;
                double newSL = 0;
                
                if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY)
@@ -721,7 +740,8 @@ void ModifyPosition(ulong ticket, double sl, double tp)
    request.sl = sl;
    request.tp = tp;
    
-   if(OrderSend(request, result))
+   bool modifyResult = OrderSend(request, result);
+   if(modifyResult)
    {
       if(result.retcode == TRADE_RETCODE_DONE)
       {
@@ -747,11 +767,15 @@ void ClosePartialPosition(ulong ticket, double volume)
    request.symbol = PositionGetString(POSITION_SYMBOL);
    request.volume = volume;
    request.type = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? ORDER_TYPE_SELL : ORDER_TYPE_BUY;
-   request.price = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? Bid : Ask;
+   request.price = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? SymbolInfoDouble(_Symbol, SYMBOL_BID) : SymbolInfoDouble(_Symbol, SYMBOL_ASK);
    request.magic = MagicNumber;
    request.comment = "Partial Close";
    
-   OrderSend(request, result);
+   bool closeResult = OrderSend(request, result);
+   if(!closeResult)
+   {
+      Print("Failed to close partial position: ", result.retcode);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -771,9 +795,13 @@ void ClosePosition(ulong ticket)
    request.symbol = PositionGetString(POSITION_SYMBOL);
    request.volume = PositionGetDouble(POSITION_VOLUME);
    request.type = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? ORDER_TYPE_SELL : ORDER_TYPE_BUY;
-   request.price = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? Bid : Ask;
+   request.price = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? SymbolInfoDouble(_Symbol, SYMBOL_BID) : SymbolInfoDouble(_Symbol, SYMBOL_ASK);
    request.magic = MagicNumber;
    request.comment = "Force Close";
    
-   OrderSend(request, result);
+   bool closeResult = OrderSend(request, result);
+   if(!closeResult)
+   {
+      Print("Failed to close position: ", result.retcode);
+   }
 }
