@@ -7,6 +7,8 @@
 #property link      ""
 #property version   "2.00"
 
+#include <Trade\Trade.mqh>
+
 input double LotSize = 0.01;              // Lot size per trade
 input int MaxTradesPerDay = 180;          // Maximum trades per day
 input int MinutesBetwenTrades = 8;        // Minutes between trades
@@ -14,7 +16,7 @@ input double MaxSpreadPips = 0.8;         // Maximum spread in pips
 input double StopLossPips = 8.0;          // Stop loss in pips
 input double TakeProfitPips = 12.0;       // Take profit in pips
 input int MagicNumber = 12345;            // Magic number for trades
-input string TradingSymbol = "EURUSD";     // Trading symbol
+input string InpSymbol = "EURUSD";        // Trading symbol
 input int RSI_Period = 14;                // RSI period for trend analysis
 input int MA_Fast = 10;                   // Fast moving average period
 input int MA_Slow = 20;                   // Slow moving average period
@@ -178,7 +180,8 @@ bool CanTrade()
    // Avoid trading during high impact news (simplified check)
    datetime currentTime = TimeCurrent();
    MqlDateTime timeStruct;
-   TimeToStruct(currentTime, timeStruct);
+   if(!TimeToStruct(currentTime, timeStruct))
+      return false;
    int hour = timeStruct.hour;
    
    if(hour >= 8 && hour <= 10) // London open volatility
@@ -489,7 +492,8 @@ bool PassesQualityFilters(int signal)
    // Filter 1: Avoid trading during low liquidity hours
    datetime currentTime = TimeCurrent();
    MqlDateTime timeStruct;
-   TimeToStruct(currentTime, timeStruct);
+   if(!TimeToStruct(currentTime, timeStruct))
+      return false;
    int hour = timeStruct.hour;
    
    if(hour >= 22 || hour <= 2) // Avoid Asian session low liquidity
