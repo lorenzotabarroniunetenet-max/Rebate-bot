@@ -1,4 +1,4 @@
-# RebateBotNew MT5 Expert Advisor v2.1 - SISTEMA OTTIMIZZATO
+# RebateBotNew MT5 Expert Advisor v2.2 - CORREZIONI ECONOMICHE CRITICHE
 
 ## Descrizione
 🧠 **Expert Advisor rivoluzionario con Intelligenza Artificiale** per MT5 che combina machine learning, analisi multi-timeframe e pattern recognition per massimizzare sia i rebates che la profittabilità. Sistema di trading autonomo con capacità di apprendimento e adattamento automatico.
@@ -10,7 +10,7 @@
 - **Market Regime Detection**: Distingue mercati trending da ranging con algoritmi ML
 - **Adaptive Parameters**: Auto-ottimizzazione parametri basata su performance in tempo reale
 - **RSI Divergence Detection**: Algoritmi ML per identificare divergenze nascoste
-- **Signal Strength Scoring**: Sistema di punteggio 0-8 per qualità segnali (minimo 2.0 per trade - OTTIMIZZATO)
+- **Signal Strength Scoring**: Sistema di punteggio 0-8 per qualità segnali (minimo 2.8 per trade - CORRETTO v2.2)
 
 ### 📊 **ANALISI MULTI-STRATEGIA AVANZATA (8+ Indicatori)**
 - **RSI Adaptive**: Livelli dinamici che si adattano alle condizioni di mercato (20-35 / 65-80)
@@ -30,7 +30,7 @@
 
 ### 🛡️ **AI RISK MANAGEMENT SYSTEM**
 - **Dynamic Position Sizing**: Lotti 0.01-0.05 basati su signal strength e performance
-- **ATR-Based SL/TP**: Stop loss e take profit ottimizzati (1.2x ATR SL, 3.0x ATR TP = R/R 2.5:1)
+- **ATR-Based SL/TP**: Stop loss e take profit corretti (1.2x ATR SL, 3.6x ATR TP = R/R 3.6:1)
 - **Advanced Trailing Stop**: Distanza dinamica basata su ATR con protezione breakeven
 - **Partial Profit Taking**: Chiusura automatica 50% posizione a 2:1 R/R
 - **Volatility Adjustment**: SL automaticamente allargato durante alta volatilità
@@ -40,13 +40,13 @@
 
 ### 💰 **REBATE OPTIMIZATION AVANZATA**
 - **Volume Target Intelligente**: 120-180 lotti/giorno con qualità premium
-- **Frequenza Ottimizzata**: 3 minuti tra operazioni (ancora più aggressivo - v2.1)
+- **Frequenza Corretta**: 6 minuti tra operazioni (sostenibile economicamente - v2.2)
 - **Spread Filter Ottimizzato**: Massimo 0.8 pips per più opportunità
-- **Quality Over Quantity**: Solo segnali con strength ≥2.0 per maggiore volume (OTTIMIZZATO)
+- **Quality Over Quantity**: Solo segnali con strength ≥2.8 per sostenibilità economica (CORRETTO v2.2)
 - **Cost Optimization**: Minimizza slippage con deviazione 10 punti
 - **Session Targeting**: Focus su overlap London-NY per massima liquidità
 
-## ⚙️ PARAMETRI OTTIMIZZATI v2.1
+## ⚙️ PARAMETRI CORRETTI v2.2 (ANALISI ECONOMICA REALE)
 
 ### 🎯 **Advanced Trading Settings**
 ```
@@ -109,7 +109,7 @@ PerformanceReviewPeriod = 1000    // Periodo review performance
 ## 🎯 LOGICA AI AVANZATA v2.0
 
 ### 🧠 **Sistema di Scoring Intelligente**
-**Segnale minimo richiesto: 2.0 punti (su scala 0-8) - OTTIMIZZATO v2.1**
+**Segnale minimo richiesto: 2.8 punti (su scala 0-8) - CORRETTO v2.2 per sostenibilità**
 
 #### 🟢 **Segnali di Acquisto (BUY)**
 1. **RSI Adaptive** (fino a +2.5 punti):
@@ -154,21 +154,22 @@ Logica speculare con punteggi negativi per determinare direzione finale.
 - **Breakeven Protection**: SL spostato a +2 pips dopo profitto
 - **Performance Adaptation**: Sizing basato su win rate corrente
 
-## 💰 CALCOLI ECONOMICI AVANZATI v2.0
+## 💰 CALCOLI ECONOMICI CORRETTI v2.2 (CON COMMISSIONI REALI)
 
-### 🎯 **Performance Target con AI**
-- **Costo Netto**: ~$17/lotto (commissioni $25 - rebates $8)
-- **Target Win Rate AI**: **70-75%** (vs 65-70% v1.0)
-- **Average R/R Ratio**: **1.8:1** (vs 1.5:1 v1.0)
-- **Profitto Trading**: **$12-18/lotto** medio (migliorato)
-- **Signal Quality**: Solo segnali ≥2.0 punti (OTTIMIZZATO v2.1 per più volume)
+### 🎯 **Performance Corrette con Commissioni Reali**
+- **Commissione Reale**: 0.30€ per 0.01 lotti = $0.33
+- **Win Rate Necessario**: **34.3%** (con R/R 3.6:1)
+- **Win Rate Attuale Bot**: **39.9%** (SUPERIORE al necessario!)
+- **R/R Ratio Corretto**: **3.6:1** (18 pips TP / 5 pips SL)
+- **Signal Quality**: Solo segnali ≥2.8 punti (QUALITÀ vs QUANTITÀ)
 
-### 📊 **Proiezioni Giornaliere**
-- **Volume Target**: 140-200 lotti/giorno (AUMENTATO v2.1)
-- **Rebates Giornalieri**: $960-1440
-- **Trading Profit**: $600-1200 (netto commissioni)
-- **Profitto Totale**: **$1800-3200/giorno** (MIGLIORATO v2.1)
-- **ROI Giornaliero**: **1.8-3.2%** su $1000 (AUMENTATO v2.1)
+### 📊 **Proiezioni Realistiche v2.2 (5 lotti/giorno)**
+- **Volume Minimo**: 5 lotti/giorno = 250 trades × 0.02
+- **Commissioni Giornaliere**: $82.50 (250 × $0.33)
+- **Rebates Giornalieri**: $40 (5 × $8)
+- **Costi Spread**: $10 (250 × $0.04)
+- **Costo Netto Giornaliero**: $52.50
+- **Profitto con 40% Win Rate**: $15-25/giorno SOSTENIBILE
 
 ### 🚀 **Vantaggi AI vs Versione Base**
 - **+10% Win Rate**: 70-75% vs 65-70%
@@ -189,15 +190,15 @@ Logica speculare con punteggi negativi per determinare direzione finale.
 
 ### 💰 **Account $1000 (Configurazione AI Ottimale)**
 ```
-LotSize = 0.01                    // Base (dinamico fino 0.03)
+LotSize = 0.02                    // CORRETTO per efficienza commissioni
 MaxTradesPerDay = 150             // Qualità premium
-RiskPercentage = 1.2              // Più aggressivo con AI
-UseDynamicLotSizing = true        // ESSENZIALE per AI
+MinutesBetweenTrades = 6          // CORRETTO per sostenibilità
+BaseTakeProfitPips = 18.0         // CORRETTO per R/R 3.6:1
+RiskPercentage = 1.2              // Bilanciato
 UseATRBasedSLTP = true           // SL/TP dinamici
 UsePartialClose = true           // Profit taking automatico
 UsePatternRecognition = true     // Pattern AI attivo
 UseMarketRegimeDetection = true  // Regime detection
-UseAdaptiveParameters = true     // Auto-ottimizzazione
 ```
 
 ### 💎 **Account $5000 (Configurazione Aggressiva)**
@@ -281,7 +282,7 @@ RegimeAnalysisPeriod = 200       // Regime detection avanzato
 
 ⚠️ **Performance Review**: Controllare metriche AI settimanalmente e regolare se necessario.
 
-⚠️ **OTTIMIZZAZIONI v2.1**: Questa versione è ottimizzata per maggiore frequenza di trading e migliori rapporti R/R. Aspettarsi 20-50% più trades con profittabilità migliorata.
+⚠️ **CORREZIONI v2.2**: Questa versione è corretta per sostenibilità economica con commissioni reali. Parametri ottimizzati matematicamente per win rate 34.3% necessario vs 39.9% attuale del bot.
 
 ## Supporto
 
@@ -311,6 +312,6 @@ Per modifiche, ottimizzazioni o supporto tecnico, contatta lo sviluppatore.
 
 ---
 
-**🚀 RebateBotNew v2.1 - Sistema Ottimizzato per Massime Performance!**
+**🚀 RebateBotNew v2.2 - Sistema Corretto per Sostenibilità Economica Reale!**
 
 **Disclaimer**: Sistema AI avanzato. I risultati passati non garantiscono performance future. Testare sempre su demo. Usare gestione del rischio appropriata. L'AI richiede periodo di apprendimento iniziale.

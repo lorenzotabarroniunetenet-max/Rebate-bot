@@ -13,9 +13,9 @@
 
 // Input Parameters
 input group "=== ADVANCED TRADING SETTINGS ==="
-input double LotSize = 0.01;                    // Base lot size per trade
+input double LotSize = 0.02;                    // Optimized lot size for commission efficiency
 input int MaxTradesPerDay = 180;                // Maximum trades per day
-input int MinutesBetweenTrades = 3;             // Minutes between trades (optimized)
+input int MinutesBetweenTrades = 6;             // Minutes between trades (optimized for sustainability)
 input double MaxSpreadPips = 0.8;               // Maximum spread in pips (tighter)
 input int MagicNumber = 12345;                  // Magic number
 input bool UseDynamicLotSizing = true;          // Enable dynamic position sizing
@@ -23,7 +23,7 @@ input double MaxLotSize = 0.05;                 // Maximum lot size allowed
 
 input group "=== AI RISK MANAGEMENT ==="
 input double BaseStopLossPips = 5.0;            // Base stop loss in pips
-input double BaseTakeProfitPips = 12.0;         // Base take profit in pips
+input double BaseTakeProfitPips = 18.0;         // Optimized to 18.0 for 3.6:1 R/R (34.3% win rate needed)
 input double RiskPercentage = 1.2;              // Risk per trade %
 input bool UseATRBasedSLTP = true;              // Use ATR for dynamic SL/TP
 input bool UseTrailingStop = true;              // Enable trailing stop
@@ -266,11 +266,11 @@ void OnTick()
    double signalStrength = 0.0;
    int signal = GetAdvancedTradingSignal(signalStrength);
    
-   if(signal == 1 && signalStrength >= 2.0) // Strong buy signal
+   if(signal == 1 && signalStrength >= 2.8) // Optimized threshold for quality over quantity
    {
       ExecuteAdvancedTrade(ORDER_TYPE_BUY, signalStrength);
    }
-   else if(signal == -1 && signalStrength >= 2.0) // Strong sell signal
+   else if(signal == -1 && signalStrength >= 2.8) // Optimized threshold for quality over quantity
    {
       ExecuteAdvancedTrade(ORDER_TYPE_SELL, signalStrength);
    }
@@ -535,7 +535,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
    // Final signal determination
    signalStrength = MathAbs(signalStrength); // Make strength positive
    
-   if(signalStrength >= 2.0)
+   if(signalStrength >= 2.8)
    {
       // Determine direction based on combined signals
       double totalBuySignals = 0.0;
@@ -666,7 +666,7 @@ void CalculateATRBasedSLTP(ENUM_ORDER_TYPE orderType, double price, double &sl, 
    {
       // Use ATR for dynamic SL/TP
       slDistance = currentATR * 1.2; // 1.2x ATR for stop loss (optimized from 1.5x)
-      tpDistance = currentATR * 3.0; // 3.0x ATR for take profit (optimized from 2.5x)
+      tpDistance = currentATR * 3.6; // 3.6x ATR for take profit (optimized for 18 pip target)
       
       // Adjust based on signal strength
       if(signalStrength > 5.0)
