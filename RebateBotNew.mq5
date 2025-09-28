@@ -31,6 +31,15 @@ input double TrailingStopPips = 4.0;            // Trailing stop distance
 input bool UsePartialClose = true;              // Enable partial profit taking
 input double PartialClosePercent = 50.0;       // Percentage to close at first target
 
+input group "=== ENHANCED SECURITY FEATURES ==="
+input double MaxDrawdownPercent = 8.0;          // Maximum drawdown before stopping (enhanced safety)
+input double MaxVolatilityATR = 25.0;           // Maximum ATR in pips before stopping trades
+input bool UseAdvancedValidation = true;        // Enable pre-trade validation checks
+input double MinAccountBalance = 500.0;         // Minimum account balance to continue trading
+input int MaxConsecutiveLosses = 5;             // Stop after consecutive losses
+input double DailyLossLimit = 100.0;            // Maximum daily loss in USD
+input bool UseMarketStressFilter = true;       // Enhanced market stress detection
+
 input group "=== MULTI-STRATEGY SETTINGS ==="
 input int RSI_Period = 14;                      // RSI period
 input double RSI_Oversold = 25;                 // RSI oversold level (more aggressive)
@@ -96,7 +105,21 @@ struct PerformanceMetrics {
    double profitFactor;
    double sharpeRatio;
 };
+
+// Enhanced security tracking
+struct SecurityMetrics
+{
+   int consecutiveLosses;
+   double dailyLoss;
+   double currentDrawdown;
+   datetime lastTradeTime;
+   bool emergencyStop;
+   double highestBalance;
+   datetime dayStartTime;
+};
+
 PerformanceMetrics performance;
+SecurityMetrics security;
 
 // Pattern recognition arrays
 double pricePattern[];
@@ -285,8 +308,85 @@ void OnTick()
 //+------------------------------------------------------------------+
 //| Check if trading is allowed                                      |
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| Enhanced security validation before trading                     |
+//+------------------------------------------------------------------+
+bool AdvancedSecurityCheck()
+{
+   if(!UseAdvancedValidation) return true;
+   
+   // 1. Check maximum drawdown
+   double currentBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+   if(security.highestBalance == 0) security.highestBalance = currentBalance;
+   if(currentBalance > security.highestBalance) security.highestBalance = currentBalance;
+   
+   security.currentDrawdown = ((security.highestBalance - currentBalance) / security.highestBalance) * 100.0;
+   if(security.currentDrawdown > MaxDrawdownPercent)
+   {
+      security.emergencyStop = true;
+      Print("🚨 EMERGENCY STOP: Maximum drawdown exceeded: ", DoubleToString(security.currentDrawdown, 2), "%");
+      return false;
+   }
+   
+   // 2. Check minimum account balance
+   if(currentBalance < MinAccountBalance)
+   {
+      security.emergencyStop = true;
+      Print("🚨 EMERGENCY STOP: Account balance too low: $", DoubleToString(currentBalance, 2));
+      return false;
+   }
+   
+   // 3. Check consecutive losses
+   if(security.consecutiveLosses >= MaxConsecutiveLosses)
+   {
+      Print("⚠️ SECURITY PAUSE: Too many consecutive losses: ", security.consecutiveLosses);
+      return false;
+   }
+   
+   // 4. Check daily loss limit
+   UpdateDailyLoss();
+   if(security.dailyLoss > DailyLossLimit)
+   {
+      Print("⚠️ DAILY LIMIT: Maximum daily loss reached: $", DoubleToString(security.dailyLoss, 2));
+      return false;
+   }
+   
+   // 5. Check market volatility
+   if(currentATR > 0)
+   {
+      double atrPips = currentATR * 10000;
+      if(atrPips > MaxVolatilityATR)
+      {
+         Print("⚠️ HIGH VOLATILITY: ATR too high: ", DoubleToString(atrPips, 1), " pips");
+         return false;
+      }
+   }
+   
+   // 6. Enhanced market stress detection
+   if(UseMarketStressFilter && IsMarketStressed())
+   {
+      Print("⚠️ MARKET STRESS: Avoiding trades during market stress");
+      return false;
+   }
+   
+   return true;
+}
+
 bool CanTrade()
 {
+   // Emergency stop check first
+   if(security.emergencyStop)
+   {
+      Print("🚨 EMERGENCY STOP ACTIVE - Trading disabled");
+      return false;
+   }
+   
+   // Enhanced security validation
+   if(!AdvancedSecurityCheck())
+   {
+      return false;
+   }
+   
    // Check daily trade limit
    if(tradesCountToday >= MaxTradesPerDay)
    {
@@ -600,6 +700,7 @@ void ExecuteAdvancedTrade(ENUM_ORDER_TYPE orderType, double signalStrength)
       Print("   TP: ", DoubleToString(tp, 5), " (", DoubleToString((MathAbs(tp - price) / _Point), 1), " pips)");
       Print("   Trades today: ", tradesCountToday, "/", MaxTradesPerDay);
       Print("   Market regime: ", (isTrendingMarket ? "TRENDING" : "RANGING"));
+      Print("   Security Status: DD=", DoubleToString(security.currentDrawdown, 1), "% ConsecLoss=", security.consecutiveLosses);
    }
    else
    {
@@ -1348,6 +1449,103 @@ bool IsActiveSession()
 }
 
 //+------------------------------------------------------------------+
+//| Update daily loss tracking                                       |
+//+------------------------------------------------------------------+
+void UpdateDailyLoss()
+{
+   datetime currentTime = TimeCurrent();
+   datetime startOfDay = currentTime - (currentTime % 86400);
+   
+   // Reset daily tracking if new day
+   if(security.dayStartTime != startOfDay)
+   {
+      security.dayStartTime = startOfDay;
+      security.dailyLoss = 0;
+      security.consecutiveLosses = 0; // Reset consecutive losses daily
+   }
+   
+   // Calculate today's loss
+   if(!HistorySelect(startOfDay, currentTime))
+      return;
+   
+   double todayProfit = 0;
+   int totalDeals = HistoryDealsTotal();
+   
+   for(int i = 0; i < totalDeals; i++)
+   {
+      ulong ticket = HistoryDealGetTicket(i);
+      if(ticket > 0)
+      {
+         if(HistoryDealGetInteger(ticket, DEAL_MAGIC) == MagicNumber &&
+            HistoryDealGetString(ticket, DEAL_SYMBOL) == _Symbol)
+         {
+            todayProfit += HistoryDealGetDouble(ticket, DEAL_PROFIT);
+         }
+      }
+   }
+   
+   security.dailyLoss = (todayProfit < 0) ? MathAbs(todayProfit) : 0;
+}
+
+//+------------------------------------------------------------------+
+//| Enhanced market stress detection                                 |
+//+------------------------------------------------------------------+
+bool IsMarketStressed()
+{
+   // Check for extreme volatility
+   if(currentATR > 0)
+   {
+      double atrPips = currentATR * 10000;
+      if(atrPips > MaxVolatilityATR * 0.8) // 80% of max threshold
+         return true;
+   }
+   
+   // Check for unusual spread widening
+   double currentSpread = GetCurrentSpread();
+   if(currentSpread > MaxSpreadPips * 1.5) // 150% of normal max spread
+      return true;
+   
+   // Check for rapid price movements (gap detection)
+   double prices[3];
+   if(CopyClose(_Symbol, PERIOD_M1, 0, 3, prices) >= 3)
+   {
+      double priceChange = MathAbs(prices[0] - prices[2]) / _Point;
+      if(priceChange > 50) // More than 5 pips in 2 minutes
+         return true;
+   }
+   
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Update security metrics after trade                             |
+//+------------------------------------------------------------------+
+void UpdateSecurityMetrics(double tradeProfit)
+{
+   if(tradeProfit < 0)
+   {
+      security.consecutiveLosses++;
+   }
+   else
+   {
+      security.consecutiveLosses = 0; // Reset on winning trade
+   }
+   
+   security.lastTradeTime = TimeCurrent();
+   
+   // Log security status
+   if(security.consecutiveLosses >= 3)
+   {
+      Print("⚠️ SECURITY ALERT: ", security.consecutiveLosses, " consecutive losses");
+   }
+   
+   if(security.currentDrawdown > MaxDrawdownPercent * 0.7) // 70% of max
+   {
+      Print("⚠️ DRAWDOWN WARNING: ", DoubleToString(security.currentDrawdown, 2), "% (Max: ", MaxDrawdownPercent, "%)");
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Count today's trades                                             |
 //+------------------------------------------------------------------+
 int CountTodayTrades()
@@ -1374,4 +1572,62 @@ int CountTodayTrades()
    }
    
    return count;
+}
+
+//+------------------------------------------------------------------+
+//| Enhanced market stress detection                                 |
+//+------------------------------------------------------------------+
+bool IsMarketStressed()
+{
+   // Check for extreme volatility
+   if(currentATR > 0)
+   {
+      double atrPips = currentATR * 10000;
+      if(atrPips > MaxVolatilityATR * 0.8) // 80% of max threshold
+         return true;
+   }
+   
+   // Check for unusual spread widening
+   double currentSpread = GetCurrentSpread();
+   if(currentSpread > MaxSpreadPips * 1.5) // 150% of normal max spread
+      return true;
+   
+   // Check for rapid price movements (gap detection)
+   double prices[3];
+   if(CopyClose(_Symbol, PERIOD_M1, 0, 3, prices) >= 3)
+   {
+      double priceChange = MathAbs(prices[0] - prices[2]) / _Point;
+      if(priceChange > 50) // More than 5 pips in 2 minutes
+         return true;
+   }
+   
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Update security metrics after trade                             |
+//+------------------------------------------------------------------+
+void UpdateSecurityMetrics(double tradeProfit)
+{
+   if(tradeProfit < 0)
+   {
+      security.consecutiveLosses++;
+   }
+   else
+   {
+      security.consecutiveLosses = 0; // Reset on winning trade
+   }
+   
+   security.lastTradeTime = TimeCurrent();
+   
+   // Log security status
+   if(security.consecutiveLosses >= 3)
+   {
+      Print("⚠️ SECURITY ALERT: ", security.consecutiveLosses, " consecutive losses");
+   }
+   
+   if(security.currentDrawdown > MaxDrawdownPercent * 0.7) // 70% of max
+   {
+      Print("⚠️ DRAWDOWN WARNING: ", DoubleToString(security.currentDrawdown, 2), "% (Max: ", MaxDrawdownPercent, "%)");
+   }
 }
