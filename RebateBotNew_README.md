@@ -259,7 +259,40 @@ RegimeAnalysisPeriod = 200       // Regime detection avanzato
 - **🔄 Market regime changed**: Exit per cambio regime
 - **✅ Trailing stop updated**: Aggiornamenti trailing stop
 
-## ⚠️ AVVERTENZE IMPORTANTI v2.1
+## 🛡️ SICUREZZA AVANZATA v2.2 - NUOVE FUNZIONALITÀ
+
+### 🚨 **Sistema di Sicurezza Completo**
+✅ **Emergency Stop System**: Arresto automatico del trading in condizioni critiche
+- **MaxDrawdownPercent = 8.0%**: Limite drawdown massimo (conservativo)
+- **MaxConsecutiveLosses = 5**: Stop dopo 5 perdite consecutive
+- **DailyLossLimit = $100**: Limite perdita giornaliera massima
+- **MinAccountBalance = $500**: Saldo minimo per continuare trading
+
+✅ **Filtri Volatilità Avanzati**:
+- **MaxVolatilityATR = 25.0 pips**: Evita trading durante alta volatilità
+- **Market Stress Detection**: Rileva gap, spread anomali, movimenti rapidi
+- **Enhanced Spread Filter**: Evita trading con spread > 150% normale
+
+✅ **Validazione Pre-Trade**:
+- **AdvancedSecurityCheck()**: Controlli completi prima di ogni trade
+- **Real-time Security Monitoring**: Status sicurezza nei log di trading
+- **Progressive Alerts**: Avvisi al 70% dei limiti di sicurezza
+
+### 📊 **Monitoraggio Sicurezza Real-Time**
+- **Consecutive Loss Counter**: Contatore perdite consecutive con alert
+- **Daily Loss Tracking**: Tracciamento perdite giornaliere
+- **Drawdown Warnings**: Avvisi progressivi drawdown
+- **Market Stress Indicator**: Indicatore stress mercato
+- **Emergency Stop Status**: Status arresto emergenza
+
+## ⚠️ AVVERTENZE IMPORTANTI v2.2
+
+### 🛡️ **Sicurezza Migliorata**
+⚠️ **SICUREZZA MASSIMA**: Sistema ora include protezioni avanzate contro perdite catastrofiche. Monitorare alert di sicurezza nei log.
+
+⚠️ **Parametri Conservativi**: Drawdown limit 8% (molto conservativo) - regolare secondo tolleranza rischio.
+
+⚠️ **Market Stress**: Bot evita automaticamente condizioni di mercato stressate (gap, alta volatilità).
 
 ### 🧠 **Sistema AI Avanzato**
 ⚠️ **IMPORTANTE**: Questo è un sistema AI avanzato con machine learning. Richiede periodo di "apprendimento" iniziale di 24-48 ore per ottimizzazione completa.
@@ -283,6 +316,8 @@ RegimeAnalysisPeriod = 200       // Regime detection avanzato
 ⚠️ **Performance Review**: Controllare metriche AI settimanalmente e regolare se necessario.
 
 ⚠️ **CORREZIONI v2.2**: Questa versione è corretta per sostenibilità economica con commissioni reali. Parametri ottimizzati matematicamente per win rate 34.3% necessario vs 39.9% attuale del bot.
+
+⚠️ **SICUREZZA v2.2**: Implementate funzionalità di sicurezza avanzate per protezione capitale e gestione rischio migliorata. Sistema ora molto più sicuro mantenendo profittabilità.
 
 ## Supporto
 
@@ -312,6 +347,14 @@ Per modifiche, ottimizzazioni o supporto tecnico, contatta lo sviluppatore.
 
 ---
 
-**🚀 RebateBotNew v2.2 - Sistema Corretto per Sostenibilità Economica Reale!**
+**🚀 RebateBotNew v2.2 - Sistema Sicuro e Sostenibile Economicamente!**
 
-**Disclaimer**: Sistema AI avanzato. I risultati passati non garantiscono performance future. Testare sempre su demo. Usare gestione del rischio appropriata. L'AI richiede periodo di apprendimento iniziale.
+### 🛡️ **NOVITÀ SICUREZZA v2.2**
+- **Emergency Stop System** con protezione drawdown 8%
+- **Market Stress Detection** per evitare condizioni rischiose  
+- **Consecutive Loss Protection** (max 5 perdite)
+- **Daily Loss Limits** ($100 giornaliero)
+- **Enhanced Volatility Filters** (ATR 25 pips max)
+- **Real-time Security Monitoring** con alert progressivi
+
+**Disclaimer**: Sistema AI avanzato con sicurezza migliorata. I risultati passati non garantiscono performance future. Testare sempre su demo. Usare gestione del rischio appropriata. L'AI richiede periodo di apprendimento iniziale. Le nuove funzionalità di sicurezza proteggono il capitale ma non eliminano tutti i rischi di trading.
