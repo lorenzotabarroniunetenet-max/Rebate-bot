@@ -15,15 +15,15 @@
 input group "=== ADVANCED TRADING SETTINGS ==="
 input double LotSize = 0.01;                    // Base lot size per trade
 input int MaxTradesPerDay = 180;                // Maximum trades per day
-input int MinutesBetweenTrades = 5;             // Minutes between trades (optimized)
-input double MaxSpreadPips = 0.6;               // Maximum spread in pips (tighter)
+input int MinutesBetweenTrades = 3;             // Minutes between trades (optimized)
+input double MaxSpreadPips = 0.8;               // Maximum spread in pips (tighter)
 input int MagicNumber = 12345;                  // Magic number
 input bool UseDynamicLotSizing = true;          // Enable dynamic position sizing
 input double MaxLotSize = 0.05;                 // Maximum lot size allowed
 
 input group "=== AI RISK MANAGEMENT ==="
-input double BaseStopLossPips = 6.0;            // Base stop loss in pips
-input double BaseTakeProfitPips = 15.0;         // Base take profit in pips
+input double BaseStopLossPips = 5.0;            // Base stop loss in pips
+input double BaseTakeProfitPips = 12.0;         // Base take profit in pips
 input double RiskPercentage = 1.2;              // Risk per trade %
 input bool UseATRBasedSLTP = true;              // Use ATR for dynamic SL/TP
 input bool UseTrailingStop = true;              // Enable trailing stop
@@ -266,11 +266,11 @@ void OnTick()
    double signalStrength = 0.0;
    int signal = GetAdvancedTradingSignal(signalStrength);
    
-   if(signal == 1 && signalStrength >= 3.0) // Strong buy signal
+   if(signal == 1 && signalStrength >= 2.0) // Strong buy signal
    {
       ExecuteAdvancedTrade(ORDER_TYPE_BUY, signalStrength);
    }
-   else if(signal == -1 && signalStrength >= 3.0) // Strong sell signal
+   else if(signal == -1 && signalStrength >= 2.0) // Strong sell signal
    {
       ExecuteAdvancedTrade(ORDER_TYPE_SELL, signalStrength);
    }
@@ -453,7 +453,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
    }
    else if(adx[0] < 20) // Weak trend/ranging
    {
-      signalStrength *= 0.5; // Reduce signal strength in ranging market
+      signalStrength *= 0.8; // Reduce signal strength in ranging market
    }
    
    signalStrength += adxSignal;
@@ -476,7 +476,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
       if(volume[0] > avgVolume * MinVolumeMultiplier)
          volumeSignal = 1.0; // Volume confirmation
       else
-         signalStrength *= 0.3; // Severely reduce signal without volume
+         signalStrength *= 0.7; // Reduce signal without volume
    }
    
    signalStrength += volumeSignal;
@@ -509,8 +509,8 @@ int GetAdvancedTradingSignal(double &signalStrength)
       else
       {
          // In ranging markets, favor mean reversion
-         if(signalStrength > 0 && rsi[0] > 50) signalStrength *= 0.7;
-         else if(signalStrength < 0 && rsi[0] < 50) signalStrength *= 0.7;
+         if(signalStrength > 0 && rsi[0] > 50) signalStrength *= 0.85;
+         else if(signalStrength < 0 && rsi[0] < 50) signalStrength *= 0.85;
       }
    }
    
@@ -524,7 +524,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
    // 11. News and Session Filters
    if(UseNewsFilter && IsHighImpactNewsTime())
    {
-      signalStrength *= 0.2; // Drastically reduce signals during news
+      signalStrength *= 0.5; // Reduce signals during news
    }
    
    if(UseSessionFilter && !IsActiveSession())
@@ -535,7 +535,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
    // Final signal determination
    signalStrength = MathAbs(signalStrength); // Make strength positive
    
-   if(signalStrength >= 3.0)
+   if(signalStrength >= 2.0)
    {
       // Determine direction based on combined signals
       double totalBuySignals = 0.0;
@@ -665,8 +665,8 @@ void CalculateATRBasedSLTP(ENUM_ORDER_TYPE orderType, double price, double &sl, 
    if(UseATRBasedSLTP && currentATR > 0)
    {
       // Use ATR for dynamic SL/TP
-      slDistance = currentATR * 1.5; // 1.5x ATR for stop loss
-      tpDistance = currentATR * 2.5; // 2.5x ATR for take profit
+      slDistance = currentATR * 1.2; // 1.2x ATR for stop loss
+      tpDistance = currentATR * 3.0; // 3.0x ATR for take profit
       
       // Adjust based on signal strength
       if(signalStrength > 5.0)
