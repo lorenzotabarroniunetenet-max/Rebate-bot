@@ -453,7 +453,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
    }
    else if(adx[0] < 20) // Weak trend/ranging
    {
-      signalStrength *= 0.8; // Reduce signal strength in ranging market
+      signalStrength *= 0.8; // Reduce signal strength in ranging market (optimized from 0.5)
    }
    
    signalStrength += adxSignal;
@@ -476,7 +476,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
       if(volume[0] > avgVolume * MinVolumeMultiplier)
          volumeSignal = 1.0; // Volume confirmation
       else
-         signalStrength *= 0.7; // Reduce signal without volume
+         signalStrength *= 0.7; // Reduce signal without volume (optimized from 0.3)
    }
    
    signalStrength += volumeSignal;
@@ -509,8 +509,8 @@ int GetAdvancedTradingSignal(double &signalStrength)
       else
       {
          // In ranging markets, favor mean reversion
-         if(signalStrength > 0 && rsi[0] > 50) signalStrength *= 0.85;
-         else if(signalStrength < 0 && rsi[0] < 50) signalStrength *= 0.85;
+         if(signalStrength > 0 && rsi[0] > 50) signalStrength *= 0.85; // Optimized from 0.7
+         else if(signalStrength < 0 && rsi[0] < 50) signalStrength *= 0.85; // Optimized from 0.7
       }
    }
    
@@ -524,7 +524,7 @@ int GetAdvancedTradingSignal(double &signalStrength)
    // 11. News and Session Filters
    if(UseNewsFilter && IsHighImpactNewsTime())
    {
-      signalStrength *= 0.5; // Reduce signals during news
+      signalStrength *= 0.5; // Reduce signals during news (optimized from 0.2)
    }
    
    if(UseSessionFilter && !IsActiveSession())
@@ -665,8 +665,8 @@ void CalculateATRBasedSLTP(ENUM_ORDER_TYPE orderType, double price, double &sl, 
    if(UseATRBasedSLTP && currentATR > 0)
    {
       // Use ATR for dynamic SL/TP
-      slDistance = currentATR * 1.2; // 1.2x ATR for stop loss
-      tpDistance = currentATR * 3.0; // 3.0x ATR for take profit
+      slDistance = currentATR * 1.2; // 1.2x ATR for stop loss (optimized from 1.5x)
+      tpDistance = currentATR * 3.0; // 3.0x ATR for take profit (optimized from 2.5x)
       
       // Adjust based on signal strength
       if(signalStrength > 5.0)
